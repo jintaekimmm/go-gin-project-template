@@ -3,28 +3,30 @@ package main
 import (
 	"github.com/99-66/go-gin-project-template/config"
 	"github.com/99-66/go-gin-project-template/routes"
-	"gorm.io/driver/mysql"
+	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 	"log"
 )
 
-//var err error
-
 func main() {
-	dsn, err := config.InitDB()
+	db, err := config.InitDB()
 	if err != nil {
-		log.Fatal("Database Initialize failed.", err)
+		panic(err)
 	}
 
-	config.DB, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
-	if err != nil {
-		log.Fatal("Database Connection failed.", err)
-	}
-	sqlDB, err := config.DB.DB()
+	sqlDB, _ := db.DB()
 	defer sqlDB.Close()
 
-	//config.DB.AutoMigrate()
+	r := initRoutes(db)
+	log.Fatal(r.Run())
+}
 
-	r := routes.InitRouter()
-	r.Run()
+
+func initRoutes(db *gorm.DB) *gin.Engine {
+	r := gin.Default()
+
+	todoAPI := initTodoAPI(db)
+	routes.TodoRoute(r, todoAPI)
+
+	return r
 }

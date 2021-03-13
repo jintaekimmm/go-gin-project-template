@@ -2,13 +2,23 @@ package controllers
 
 import (
 	"github.com/99-66/go-gin-project-template/models"
+	"github.com/99-66/go-gin-project-template/services"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
 )
 
-func GetTodos(c *gin.Context) {
-	todos, err := models.GetAllTodos()
+type TodoAPI struct {
+	TodoService services.TodoService
+}
+
+func ProvideTodoAPI(t services.TodoService) TodoAPI {
+	return TodoAPI{TodoService: t}
+}
+
+// FindAll
+func (t *TodoAPI) FindAll(c *gin.Context) {
+	todos, err := t.TodoService.FindAll()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -17,59 +27,63 @@ func GetTodos(c *gin.Context) {
 	c.JSON(http.StatusOK, todos)
 }
 
-func CreateTodo(c *gin.Context) {
+// Create
+func (t *TodoAPI) Create(c *gin.Context) {
 	var todo models.Todo
-	err := c.ShouldBindJSON(&todo)
+	err := c.BindJSON(&todo)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	err = models.CreateTodo(&todo)
+	err = t.TodoService.Create(&todo)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(http.StatusCreated, todo)
+
+	c.JSON(http.StatusOK, todo)
 }
 
-func GetTodo(c *gin.Context) {
+// FindById
+func (t *TodoAPI) FindById(c *gin.Context) {
 	p := c.Param("id")
 	id, err := strconv.Atoi(p)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	todo, err := models.GetTodo(id)
+
+	todo, err := t.TodoService.FindById(uint(id))
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": http.StatusText(404)})
+	}
+
+	c.JSON(http.StatusOK, todo)
+}
+
+// Update
+func (t *TodoAPI) Update(c *gin.Context) {
+	p := c.Param("id")
+	id, err := strconv.Atoi(p)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	todo, err := t.TodoService.FindById(uint(id))
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": http.StatusText(404)})
 		return
 	}
-	c.JSON(http.StatusOK, todo)
-}
 
-func UpdateTodo(c *gin.Context) {
-	p := c.Param("id")
-	id, err := strconv.Atoi(p)
+	var updateTodo models.Todo
+	err = c.BindJSON(&updateTodo)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	var todo models.Todo
-	todo, err = models.GetTodo(id)
-	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "Item Not Found"})
-		return
-	}
-
-	var updateBody models.Todo
-	err = c.ShouldBindJSON(&updateBody)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	err = models.UpdateTodo(&todo, &updateBody, id)
+	err = t.TodoService.Update(&todo, &updateTodo)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -78,21 +92,22 @@ func UpdateTodo(c *gin.Context) {
 	c.JSON(http.StatusOK, todo)
 }
 
-func DeleteTodo(c *gin.Context) {
+// Delete
+func (t *TodoAPI) Delete(c *gin.Context) {
 	p := c.Param("id")
 	id, err := strconv.Atoi(p)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	var todo models.Todo
-	todo, err = models.GetTodo(id)
+
+	todo, err := t.TodoService.FindById(uint(id))
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "Item Not Found"})
+		c.JSON(http.StatusNotFound, gin.H{"error": http.StatusText(404)})
 		return
 	}
 
-	err = models.DeleteTodo(&todo, id)
+	err = t.TodoService.DeleteById(&todo, uint(id))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
