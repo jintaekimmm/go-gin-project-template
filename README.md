@@ -22,3 +22,8 @@ go run main.go wire_gen.go
 go build main.go wire_gen.go
 ./main
 ```
+
+After modify swagger options
+```shell
+ swag init -parseDependency=true
+```

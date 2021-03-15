@@ -16,7 +16,16 @@ func ProvideTodoAPI(t services.TodoService) TodoAPI {
 	return TodoAPI{TodoService: t}
 }
 
-// FindAll
+// FindAll godoc
+// @Summary FindAll Todo List
+// @Description FindAll Todo List
+// @Tags Todo
+// @Security ApiKeyAuth
+// @Accept application/json
+// @Produce application/json
+// @Success 200 {array} models.Todo
+// @Failure 500 {object} config.APIError
+// @Router /todo [get]
 func (t *TodoAPI) FindAll(c *gin.Context) {
 	// Usage Roles
 	//roles, ok := c.Get("roles")
@@ -33,7 +42,18 @@ func (t *TodoAPI) FindAll(c *gin.Context) {
 	c.JSON(http.StatusOK, todos)
 }
 
-// Create
+// Create godoc
+// @Summary Create Todo
+// @Description Create Todo
+// @Tags Todo
+// @Security ApiKeyAuth
+// @Accept application/json
+// @Produce application/json
+// @Param todo body models.Todo true "Create Todo"
+// @Success 200 {object} models.Todo
+// @Failure 400 {object} config.APIError
+// @Failure 500 {object} config.APIError
+// @Router /todo [post]
 func (t *TodoAPI) Create(c *gin.Context) {
 	var todo models.Todo
 	err := c.BindJSON(&todo)
@@ -50,7 +70,18 @@ func (t *TodoAPI) Create(c *gin.Context) {
 	c.JSON(http.StatusOK, todo)
 }
 
-// FindById
+// FindById godoc
+// @Summary FindById Todo
+// @Description FindById Todo
+// @Tags Todo
+// @Security ApiKeyAuth
+// @Accept application/json
+// @Produce application/json
+// @Param id path integer true "ID"
+// @Success 200 {object} models.Todo
+// @Failure 400 {object} config.APIError
+// @Failure 404 {object} config.APIError
+// @Router /todo/{id} [get]
 func (t *TodoAPI) FindById(c *gin.Context) {
 	p := c.Param("id")
 	id, err := strconv.Atoi(p)
@@ -62,12 +93,26 @@ func (t *TodoAPI) FindById(c *gin.Context) {
 	todo, err := t.TodoService.FindById(uint(id))
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": http.StatusText(404)})
+		return
 	}
 
 	c.JSON(http.StatusOK, todo)
 }
 
-// Update
+// Update godoc
+// @Summary Update Todo
+// @Description Update Todo
+// @Tags Todo
+// @Security ApiKeyAuth
+// @Accept application/json
+// @Produce application/json
+// @Param id path integer true "ID"
+// @Param todo body models.Todo true "Update Todo"
+// @Success 200 {object} models.Todo
+// @Failure 400 {object} config.APIError
+// @Failure 404 {object} config.APIError
+// @Failure 500 {object} config.APIError
+// @Router /todo/{id} [put]
 func (t *TodoAPI) Update(c *gin.Context) {
 	p := c.Param("id")
 	id, err := strconv.Atoi(p)
@@ -98,7 +143,19 @@ func (t *TodoAPI) Update(c *gin.Context) {
 	c.JSON(http.StatusOK, todo)
 }
 
-// Delete
+// Delete godoc
+// @Summary Delete Todo
+// @Description Delete Todo
+// @Tags Todo
+// @Security ApiKeyAuth
+// @Accept application/json
+// @Produce application/json
+// @Param id path integer true "ID"
+// @Success 204 {string} {}
+// @Failure 400 {object} config.APIError
+// @Failure 404 {object} config.APIError
+// @Failure 500 {object} config.APIError
+// @Router /todo/{id} [delete]
 func (t *TodoAPI) Delete(c *gin.Context) {
 	p := c.Param("id")
 	id, err := strconv.Atoi(p)
