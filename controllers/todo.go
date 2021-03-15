@@ -18,6 +18,12 @@ func ProvideTodoAPI(t services.TodoService) TodoAPI {
 
 // FindAll
 func (t *TodoAPI) FindAll(c *gin.Context) {
+	// Usage Roles
+	//roles, ok := c.Get("roles")
+	//if !ok {
+	//	return
+	//}
+
 	todos, err := t.TodoService.FindAll()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
