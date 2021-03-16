@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"github.com/99-66/go-gin-project-template/config"
 	_ "github.com/99-66/go-gin-project-template/docs"
 	"github.com/99-66/go-gin-project-template/routes"
@@ -8,6 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
+	"go.mongodb.org/mongo-driver/mongo"
 	"gorm.io/gorm"
 	"log"
 )
@@ -34,21 +36,36 @@ import (
 // @securityDefinitions.apikey ApiKeyAuth
 // @in header
 // @name Authorization
+
+// dbHandler 함수간에 핸들러를 전달하기 위한 사용자 정의타입
+type dbHandlers struct {
+	db *gorm.DB
+	mongodb *mongo.Client
+}
+
 func main() {
-	db, err := config.InitDB()
+	var err error
+	var dbHandler dbHandlers
+
+	dbHandler.db, err = config.InitDB()
 	if err != nil {
 		panic(err)
 	}
-
-	sqlDB, _ := db.DB()
+	sqlDB, _ := dbHandler.db.DB()
 	defer sqlDB.Close()
 
-	r := initRoutes(db)
+	dbHandler.mongodb, err = config.InitMongoDB()
+	if err != nil {
+		panic(err)
+	}
+	defer dbHandler.mongodb.Disconnect(context.TODO())
+
+	r := initRoutes(dbHandler)
 	log.Fatal(r.Run())
 }
 
 
-func initRoutes(db *gorm.DB) *gin.Engine {
+func initRoutes(dbHandler dbHandlers) *gin.Engine {
 	r := gin.Default()
 
 	// CORS allows all origins
@@ -57,7 +74,7 @@ func initRoutes(db *gorm.DB) *gin.Engine {
 	r.Use(cors.New(conf))
 
 	// Project routes
-	todoAPI := initTodoAPI(db)
+	todoAPI := initTodoAPI(dbHandler.db, dbHandler.mongodb)
 	routes.TodoRoute(r, todoAPI)
 
 	// Swagger Settings

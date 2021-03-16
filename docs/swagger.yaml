@@ -5,6 +5,15 @@ definitions:
       error:
         type: string
     type: object
+  models.Location:
+    properties:
+      _id:
+        type: string
+      lat:
+        type: number
+      lon:
+        type: number
+    type: object
   models.Todo:
     properties:
       description:
@@ -23,7 +32,7 @@ info:
     email: support@swagger.io
     name: API Support
     url: http://www.swagger.io/support
-  description: Todo microservice server.
+  description: Todo microservice API
   license:
     name: Apache 2.0
     url: http://www.apache.org/licenses/LICENSE-2.0.html
@@ -188,6 +197,29 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: Update Todo
+      tags:
+      - Todo
+  /todov2:
+    get:
+      consumes:
+      - application/json
+      description: FindAllCollection Todo List
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Location'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/config.APIError'
+      security:
+      - ApiKeyAuth: []
+      summary: FindAllCollection Todo List
       tags:
       - Todo
 schemes:

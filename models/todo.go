@@ -9,3 +9,9 @@ type Todo struct {
 func (t *Todo) TableName() string {
 	return "todo"
 }
+
+type Location struct {
+	ID string `bson:"_id" json:"_id"`
+	Lon float64 `json:"lon"`
+	Lat float64 `json:"lat"`
+}

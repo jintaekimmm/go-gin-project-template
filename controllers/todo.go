@@ -178,3 +178,23 @@ func (t *TodoAPI) Delete(c *gin.Context) {
 
 	c.JSON(http.StatusNoContent, "")
 }
+
+// FindAllCollection godoc
+// @Summary FindAllCollection Todo List
+// @Description FindAllCollection Todo List
+// @Tags Todo
+// @Security ApiKeyAuth
+// @Accept application/json
+// @Produce application/json
+// @Success 200 {array} models.Location
+// @Failure 500 {object} config.APIError
+// @Router /todov2 [get]
+func (t *TodoAPI) FindAllCollection(c *gin.Context) {
+	collections, err := t.TodoService.FindAllCollection()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, collections)
+}

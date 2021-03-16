@@ -40,3 +40,13 @@ func (t *TodoService) DeleteById(todo *models.Todo, id uint) error {
 	err := t.TodoRepository.DeleteById(todo, id)
 	return err
 }
+
+// FindAllCollection
+func (t *TodoService) FindAllCollection() ([]models.Location, error) {
+	collection, err := t.TodoRepository.FindAllCollection()
+	if err != nil {
+		return nil, err
+	}
+
+	return collection, err
+}

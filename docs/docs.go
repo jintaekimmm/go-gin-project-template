@@ -282,6 +282,43 @@ var doc = `{
                     }
                 }
             }
+        },
+        "/todov2": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "FindAllCollection Todo List",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Todo"
+                ],
+                "summary": "FindAllCollection Todo List",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Location"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/config.APIError"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -290,6 +327,20 @@ var doc = `{
             "properties": {
                 "error": {
                     "type": "string"
+                }
+            }
+        },
+        "models.Location": {
+            "type": "object",
+            "properties": {
+                "_id": {
+                    "type": "string"
+                },
+                "lat": {
+                    "type": "number"
+                },
+                "lon": {
+                    "type": "number"
                 }
             }
         },
@@ -337,7 +388,7 @@ var SwaggerInfo = swaggerInfo{
 	BasePath:    "/api/v1",
 	Schemes:     []string{"http", "https"},
 	Title:       "Todo API",
-	Description: "Todo microservice server.",
+	Description: "Todo microservice API",
 }
 
 type s struct{}

@@ -9,13 +9,18 @@ import (
 	"github.com/99-66/go-gin-project-template/controllers"
 	"github.com/99-66/go-gin-project-template/repositories"
 	"github.com/99-66/go-gin-project-template/services"
+	"go.mongodb.org/mongo-driver/mongo"
 	"gorm.io/gorm"
+)
+
+import (
+	_ "github.com/99-66/go-gin-project-template/docs"
 )
 
 // Injectors from wire.go:
 
-func initTodoAPI(db *gorm.DB) controllers.TodoAPI {
-	todoRepository := repositories.ProvideTodoRepository(db)
+func initTodoAPI(db *gorm.DB, mongodb *mongo.Client) controllers.TodoAPI {
+	todoRepository := repositories.ProvideTodoRepository(db, mongodb)
 	todoService := services.ProvideTodoService(todoRepository)
 	todoAPI := controllers.ProvideTodoAPI(todoService)
 	return todoAPI

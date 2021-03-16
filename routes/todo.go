@@ -16,6 +16,7 @@ func TodoRoute(r *gin.Engine, todo controllers.TodoAPI) *gin.Engine {
 			v1.GET("/todo/:id", todo.FindById)
 			v1.PUT("/todo/:id", todo.Update)
 			v1.DELETE("/todo/:id", todo.Delete)
+			v1.GET("/todov2", todo.FindAllCollection)
 		}
 	}
 
